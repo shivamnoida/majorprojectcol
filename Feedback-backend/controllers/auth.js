@@ -2,11 +2,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/auth.js";
 
+const JWT_SECRET = "Secret";
+
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
   try {
     const existinguser = await User.findOne({ email });
     if (existinguser) {
+      
       return res.status(404).json({ message: "User already Exist." });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -17,7 +20,7 @@ export const signup = async (req, res) => {
     });
     const token = jwt.sign(
       { email: newUser.email, id: newUser._id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       {
         expiresIn: "1h",
       }
@@ -41,9 +44,10 @@ export const login = async (req, res) => {
     }
     const token = jwt.sign(
       { email: existinguser.email, id: existinguser._id },
-      process.env.JWT_SECRET,
+      JWT_SECRET,
       { expiresIn: "1h" }
     );
+    console.log(isPasswordCrt);
     res.status(200).json({ result: existinguser, token });
   } catch (error) {
     res.status(500).json("Something went wrong...");

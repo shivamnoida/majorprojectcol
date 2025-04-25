@@ -10,6 +10,9 @@ const LeftSidebar = () => {
         <NavLink to="/" className="side-nav-links" activeclassname="active">
           <p>Home</p>
         </NavLink>
+        <NavLink to="/Chat" className="side-nav-links" activeclassname="active">
+          <p>Chat</p>
+        </NavLink>
         <div className="side-nav-div">
           <div>
             <p>PUBLIC</p>

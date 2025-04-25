@@ -23,6 +23,7 @@ const Auth = () => {
       if (!name) {
         alert("Enter a name to continue");
       }
+      console.log(name);
       dispatch(signup({ name, email, password }, navigate));
       console.log({ name, email, password });
     } else {
