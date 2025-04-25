@@ -13,7 +13,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST"] 
+    methods: ["GET", "POST", "PUT", "DELETE"] 
   }
 });
 // dotenv.config();
@@ -24,24 +24,16 @@ const users = {};
 
 io.on("connection", (socket) => {
   console.log("New socket connection:", socket.id);
-  socket.on("register", ({curUserId,userId}) => {
-    if(users[userId]){
-      console.log("Exists");
-    }
-    else{
-
-      console.log("user :" + userId+ "  curr : " +curUserId)
-      users[userId] = socket.id;
-      users[curUserId] = socket.id;
-      console.log("cur " + users[curUserId])
-      console.log("user " + users[userId])
-      console.log(`User ${userId} registered with socket ${socket.id}`);
-    }
+  socket.on("register", ({ curUserId }) => {
+    users[curUserId] = socket.id;
+    console.log(`✅ Registered user ${curUserId} with socket ${socket.id}`);
+    console.log("Current users map:", users);
     
   });
   
   socket.on("sendMessage", ({ to, message }) => {
     const recipientSocketId = users[to];
+    console.log(`📨 Message from ${message.from} to ${to}`);
     console.log("recep: " + recipientSocketId)
     if (recipientSocketId) {
       io.to(recipientSocketId).emit("receiveMessage", message);
@@ -52,6 +44,7 @@ io.on("connection", (socket) => {
     for (let userId in users) {
       if (users[userId] === socket.id) {
         delete users[userId];
+        console.log(`❌ User ${userId} disconnected.`);
         break;
       }
     }

@@ -13,33 +13,27 @@ export default function ChatPage({ currentUser }) {
     const [messages, setMessages] = useState([]);
     
     useEffect(() => {
-        console.log("🚀 useEffect running");
-    console.log("currentUser:", currentUser.result._id);
+        
         if (!currentUser.result._id) return;
         console.log(socketRef.current);
         if (!socketRef.current) {
-            console.log("socketRef.current");
             socketRef.current = io('http://localhost:5000');
         }
-            // socketRef.current.connect();
-        // socket.connect();
-        // Register current user to socket
-        let curUserId = currentUser.result._id;
-        socketRef.current.emit('register', {curUserId,userId});
+        const curUserId = currentUser.result._id;
+        socketRef.current.emit('register', {curUserId});
+
+        const handleReceiveMessage = (message) => {
+            setMessages((prev) => [...prev, message]);
+          };
 
         // Handle incoming message
-        socketRef.current.on('receiveMessage', (message) => {
-            console.log(message.text)
-            if (true) {
-                setMessages((prev) => [...prev, message.text]);
-            }
-        });
+        socketRef.current.on('receiveMessage',handleReceiveMessage );
 
         return () => {
-            // socketRef.current.off('receiveMessage');
+            socketRef.current.off('receiveMessage',handleReceiveMessage);
             // socketRef.current.disconnect();
         };
-    }, [userId, currentUser]);
+    }, [currentUser]);
 
     const handleSend = () => {
         if (input.trim() === '') return;
@@ -51,7 +45,7 @@ export default function ChatPage({ currentUser }) {
             to: userId,
         };
 
-        setMessages((prev) => [...prev, message.text]);
+        setMessages((prev) => [...prev, message]);
         socketRef.current.emit('sendMessage', { to: userId, message });
         setInput('');
     };
